@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Método de pago - Residencial Los Robles</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  </head>
+
+  <body>
+    <script>
+      function MetodosPagoGuardados() {
+            const [metodosGuardados, setMetodosGuardados] = React.useState([]);
+
+            React.useEffect(() => {
+                const metodos = localStorage.getItem("metodosPago");
+                if (metodos) {
+                setMetodosGuardados(JSON.parse(metodos));
+                }
+            }, []);
+
+            const eliminarMetodo = (index) => {
+                if (confirm("¿Estás seguro de que quieres eliminar este método de pago?")) {
+                const nuevosMetodos = metodosGuardados.filter((_, i) => i !== index);
+                setMetodosGuardados(nuevosMetodos);
+                localStorage.setItem("metodosPago", JSON.stringify(nuevosMetodos));
+                }
+            };
+
+            if (metodosGuardados.length === 0) {
+                return (
+                <div className="no-metodos">
+                    <p>No tienes métodos de pago guardados.</p>
+                    <button 
+                    className="btn-agregar"
+                    onClick={() => window.location.href = "metodo-pago.html"}
+                    >
+                    ➕ Agregar método de pago
+                    </button>
+                </div>
+                );
+            }
+
+            return (
+                <div className="metodos-guardados">
+                <h2>Métodos de Pago Guardados</h2>
+                
+                <button 
+                    className="btn-agregar"
+                    onClick={() => window.location.href = "metodo-pago.html"}
+                >
+                    ➕ Agregar nuevo método
+                </button>
+
+                <div className="lista-metodos">
+                    {metodosGuardados.map((metodo, index) => (
+                    <div key={index} className="metodo-card">
+                        <div className="metodo-info">
+                        <div className="metodo-header">
+                            <h3>💳 {metodo.nombreTitular}</h3>
+                            <span className="metodo-tipo">
+                            {detectarTipoTarjeta(metodo.numeroTarjeta)}
+                            </span>
+                        </div>
+                        
+                        <div className="metodo-details">
+                            <p><strong>Número:</strong> **** **** **** {metodo.numeroTarjeta.slice(-4)}</p>
+                            <p><strong>Expira:</strong> {metodo.expiracion}</p>
+                            <p><strong>Dirección:</strong> {metodo.calle}, {metodo.colonia}</p>
+                            <p><strong>Teléfono:</strong> {metodo.telefono}</p>
+                        </div>
+                        </div>
+                        
+                        <div className="metodo-actions">
+                        <button 
+                            className="btn-usar"
+                            onClick={() => seleccionarMetodo(metodo)}
+                        >
+                            Usar este método
+                        </button>
+                        <button 
+                            className="btn-eliminar"
+                            onClick={() => eliminarMetodo(index)}
+                        >
+                            🗑️ Eliminar
+                        </button>
+                        </div>
+                    </div>
+                    ))}
+                </div>
+                </div>
+            );
+            }
+
+            // Función para detectar el tipo de tarjeta
+            function detectarTipoTarjeta(numero) {
+            if (/^4/.test(numero)) return "Visa";
+            if (/^5[1-5]/.test(numero)) return "MasterCard";
+            if (/^3[47]/.test(numero)) return "American Express";
+            if (/^6(?:011|5)/.test(numero)) return "Discover";
+            return "Tarjeta";
+            }
+
+            // Función para seleccionar un método
+            function seleccionarMetodo(metodo) {
+            localStorage.setItem("metodoPagoSeleccionado", JSON.stringify(metodo));
+            alert("Método de pago seleccionado correctamente");
+            window.location.href = "pagos.html"; // O donde necesites redirigir
+            }
+  
+    </script>
+  </body>
+</html>
+
